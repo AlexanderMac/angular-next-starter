@@ -1,9 +1,10 @@
 import { Injectable }        from '@angular/core';
 import { Observable }        from 'rxjs/Observable';
 import * as _                from 'lodash';
-import { MemoryRepoService } from './memory-repo.service';
+import { IModel,
+         MemoryRepoService } from './memory-repo.service';
 
-export class LocalStorageRepoService extends MemoryRepoService {
+export class LocalStorageRepoService<ModelType extends IModel> extends MemoryRepoService<ModelType> {
   private localStorage: Storage;
   private collectionName: string;
 
@@ -20,8 +21,9 @@ export class LocalStorageRepoService extends MemoryRepoService {
   load(): void {
     let modelsStr = this.localStorage.getItem(this.collectionName);
     if (modelsStr) {
-      let models = _.attempt(JSON.parse.bind(null, modelsStr)) as any[];
-      this.models = _.isError(models) ? [] : models;
+      let parsedModels = _.attempt(JSON.parse.bind(null, modelsStr)) as any[];
+      let models = _.isError(parsedModels) ? [] : parsedModels as ModelType[];
+      this.models = _.map(models, model => new ModelType(model));
       let nextIdStr = _.chain(this.models)
         .map('id')
         .max()
@@ -56,8 +58,8 @@ export class LocalStorageRepoService extends MemoryRepoService {
 
 @Injectable()
 export class LocalStorageRepoServiceFactory {
-  getInstance(window: Window) {
-    let instance = new LocalStorageRepoService(window);
+  getInstance<ModelType>(window: Window) {
+    let instance = new LocalStorageRepoService<ModelType>(window);
     return instance;
   }
 }

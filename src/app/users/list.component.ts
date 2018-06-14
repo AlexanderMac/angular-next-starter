@@ -7,10 +7,6 @@ import { UserService }         from './service';
 import { RoleService }         from '../roles/service';
 import { User }                from './model';
 
-class UserEx extends User {
-  rolesStr: string;
-}
-
 @Component({
   selector: 'am-user-list',
   template: require('./list.component.pug')
@@ -18,7 +14,7 @@ class UserEx extends User {
 export class UserListComponent implements OnInit {
   isLoading: boolean;
   isSaving: boolean;
-  users: UserEx[];
+  users: User[];
 
   constructor(
     private router: Router,
@@ -40,14 +36,8 @@ export class UserListComponent implements OnInit {
     .subscribe(
       ([roles, users]) => {
         this.users = _.map(users, user => {
-          let userEx = user as UserEx;
-          userEx.rolesStr = _.chain(user.roles)
-            .map(userRoleId => _.find(roles, { id: +userRoleId }))
-            .map(role => role ? role.name : '')
-            .compact()
-            .join(',')
-            .value();
-          return userEx;
+          user.extendUserByRoleNames(roles);
+          return user;
         });
       },
       () => this.ntfsSrvc.error('Unable to load users'),

@@ -17,7 +17,7 @@ am-spinner(*ngIf="isLoading")
         td {{ user.id }}
         td {{ user.name }}
         td {{ user.email }}
-        td {{ user.rolesStr }}
+        td {{ user.roleNames }}
         td.actions
           button.btn.btn-info.btn-sm(title="View" '(click)'="userDetails(user)" '[disabled]'="isSaving") View
           button.btn.btn-warning.btn-sm(title="Edit" '(click)'="editUser(user)" '[disabled]'="isSaving") Edit
